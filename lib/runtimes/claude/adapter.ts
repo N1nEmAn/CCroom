@@ -59,8 +59,8 @@ export const claudeAdapter: RuntimeAdapter = {
     const mapped = sessions.map((s) => ({
       id: s.sessionId,
       entityId: s.projectSlug,
-      runtime: "claude",
-      type: "project-session",
+      runtime: "claude" as const,
+      type: "project-session" as const,
       title: s.firstUserMessage ? s.firstUserMessage.slice(0, 80) : s.sessionId,
       lastActiveAt: s.lastActiveAt ? new Date(s.lastActiveAt).toISOString() : undefined,
       lastActiveMs: s.lastActiveAt,

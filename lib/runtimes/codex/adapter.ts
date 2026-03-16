@@ -97,8 +97,8 @@ export const codexAdapter: RuntimeAdapter = {
     const mapped = filtered.map((t) => ({
       id: t.id,
       entityId: encodeURIComponent(t.cwd || "(unknown)"),
-      runtime: "codex",
-      type: "thread",
+      runtime: "codex" as const,
+      type: "thread" as const,
       title: t.title || t.id,
       lastActiveAt: t.updatedAt ? new Date(t.updatedAt).toISOString() : undefined,
       lastActiveMs: t.updatedAt,
