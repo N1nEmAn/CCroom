@@ -40,6 +40,9 @@ const translations: Record<Locale, Record<string, string>> = {
     "alerts.checking": "正在檢查警報...",
     "alerts.checkNow": "立即檢查",
     "alerts.checkInterval": "檢查間隔",
+    "alerts.rule.runtime_unreadable": "Runtime 不可讀",
+    "alerts.rule.claude_projects_broken": "Claude Projects 目錄損壞",
+    "alerts.rule.codex_sqlite_inaccessible": "Codex SQLite 不可訪問",
 
     // common
     "common.loading": "思考中...",
@@ -326,6 +329,9 @@ const translations: Record<Locale, Record<string, string>> = {
     "alerts.checking": "正在检查告警...",
     "alerts.checkNow": "立即检查",
     "alerts.checkInterval": "检查间隔",
+    "alerts.rule.runtime_unreadable": "Runtime 不可读",
+    "alerts.rule.claude_projects_broken": "Claude Projects 目录损坏",
+    "alerts.rule.codex_sqlite_inaccessible": "Codex SQLite 不可访问",
 
     // common
     "common.loading": "思考中...",
@@ -612,6 +618,9 @@ const translations: Record<Locale, Record<string, string>> = {
     "alerts.checking": "Checking alerts...",
     "alerts.checkNow": "Check Now",
     "alerts.checkInterval": "Check Interval",
+    "alerts.rule.runtime_unreadable": "Runtime Unreadable",
+    "alerts.rule.claude_projects_broken": "Claude Projects Dir Broken",
+    "alerts.rule.codex_sqlite_inaccessible": "Codex SQLite Inaccessible",
 
     // common
     "common.loading": "thinking...",

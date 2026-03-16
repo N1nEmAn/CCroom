@@ -25,6 +25,9 @@ const DEFAULT_RULES: AlertRule[] = [
   { id: "bot_no_response", name: "Bot Long Time No Response", enabled: false, threshold: 300 }, // 5分钟无响应
   { id: "message_failure_rate", name: "Message Failure Rate High", enabled: false, threshold: 50 }, // 失败率超过50%
   { id: "cron连续_failure", name: "Cron Continuous Failure", enabled: false, threshold: 3 }, // 连续失败3次
+  { id: "runtime_unreadable", name: "Runtime Unreadable", enabled: true }, // runtime 不可读
+  { id: "claude_projects_broken", name: "Claude Projects Dir Broken", enabled: true }, // Claude projects 目录损坏
+  { id: "codex_sqlite_inaccessible", name: "Codex SQLite Inaccessible", enabled: true }, // Codex sqlite 不可访问
 ];
 
 function getAlertConfig(): AlertConfig {

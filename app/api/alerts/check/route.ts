@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { OPENCLAW_CONFIG_PATH, OPENCLAW_HOME } from "@/lib/openclaw-paths";
+import { CLAUDE_PROJECTS_DIR } from "@/lib/runtimes/claude/paths";
+import { findCodexStateDb, codexHomeExists } from "@/lib/runtimes/codex/paths";
+import { getAllHealthStatuses } from "@/lib/runtimes/registry";
+import { bootstrapAdapters } from "@/lib/runtimes/bootstrap";
 const ALERTS_CONFIG_PATH = path.join(OPENCLAW_HOME, "alerts.json");
 
 interface AlertRule {
@@ -32,6 +36,9 @@ function getAlertConfig(): AlertConfig {
     { id: "bot_no_response", name: "Bot Long Time No Response", enabled: false, threshold: 300 },
     { id: "message_failure_rate", name: "Message Failure Rate High", enabled: false, threshold: 50 },
     { id: "cron连续_failure", name: "Cron Continuous Failure", enabled: false, threshold: 3 },
+    { id: "runtime_unreadable", name: "Runtime Unreadable", enabled: true },
+    { id: "claude_projects_broken", name: "Claude Projects Dir Broken", enabled: true },
+    { id: "codex_sqlite_inaccessible", name: "Codex SQLite Inaccessible", enabled: true },
   ], lastAlerts: {} };
 }
 
@@ -413,6 +420,95 @@ async function checkCronAlerts(config: AlertConfig) {
   return results;
 }
 
+// 检查所有 runtime 是否可读/健康
+async function checkRuntimeUnreadable(config: AlertConfig): Promise<string[]> {
+  const results: string[] = [];
+  const rule = config.rules.find(r => r.id === "runtime_unreadable");
+  if (!rule?.enabled) return results;
+
+  bootstrapAdapters();
+  const healthStatuses = await getAllHealthStatuses();
+  for (const h of healthStatuses) {
+    if (h.status === "error" || h.status === "offline") {
+      const msg = `Runtime ${h.runtime} is ${h.status}${h.error ? ": " + h.error : ""}`;
+      results.push(`🚨 ${msg}`);
+      const key = `${rule.id}_${h.runtime}`;
+      const lastAlert = config.lastAlerts?.[key] || 0;
+      const now = Date.now();
+      if (now - lastAlert > 60_000) {
+        await sendAlertViaFeishu(config.receiveAgent, msg);
+        config.lastAlerts = config.lastAlerts || {};
+        config.lastAlerts[key] = now;
+      }
+    }
+  }
+  return results;
+}
+
+// 检查 Claude projects 目录是否可读
+async function checkClaudeProjectsBroken(config: AlertConfig): Promise<string[]> {
+  const results: string[] = [];
+  const rule = config.rules.find(r => r.id === "claude_projects_broken");
+  if (!rule?.enabled) return results;
+
+  try {
+    const stat = fs.statSync(CLAUDE_PROJECTS_DIR);
+    if (!stat.isDirectory()) throw new Error("not a directory");
+    // Try listing — if it throws, the dir is unreadable
+    fs.readdirSync(CLAUDE_PROJECTS_DIR);
+  } catch (err: any) {
+    const msg = `Claude projects dir unreadable (${CLAUDE_PROJECTS_DIR}): ${err.message}`;
+    results.push(`🚨 ${msg}`);
+    const lastAlert = config.lastAlerts?.[rule.id] || 0;
+    const now = Date.now();
+    if (now - lastAlert > 300_000) {
+      await sendAlertViaFeishu(config.receiveAgent, msg);
+      config.lastAlerts = config.lastAlerts || {};
+      config.lastAlerts[rule.id] = now;
+    }
+  }
+  return results;
+}
+
+// 检查 Codex SQLite 是否可访问
+async function checkCodexSqliteInaccessible(config: AlertConfig): Promise<string[]> {
+  const results: string[] = [];
+  const rule = config.rules.find(r => r.id === "codex_sqlite_inaccessible");
+  if (!rule?.enabled) return results;
+
+  // If codex home doesn't exist at all, skip silently (not installed)
+  if (!codexHomeExists()) return results;
+
+  const dbPath = findCodexStateDb();
+  if (!dbPath) {
+    const msg = "Codex home exists but no state_*.sqlite found";
+    results.push(`⚠️ ${msg}`);
+    const lastAlert = config.lastAlerts?.[rule.id] || 0;
+    const now = Date.now();
+    if (now - lastAlert > 300_000) {
+      await sendAlertViaFeishu(config.receiveAgent, msg);
+      config.lastAlerts = config.lastAlerts || {};
+      config.lastAlerts[rule.id] = now;
+    }
+    return results;
+  }
+
+  try {
+    fs.accessSync(dbPath, fs.constants.R_OK);
+  } catch (err: any) {
+    const msg = `Codex SQLite not readable (${path.basename(dbPath)}): ${err.message}`;
+    results.push(`🚨 ${msg}`);
+    const lastAlert = config.lastAlerts?.[rule.id] || 0;
+    const now = Date.now();
+    if (now - lastAlert > 300_000) {
+      await sendAlertViaFeishu(config.receiveAgent, msg);
+      config.lastAlerts = config.lastAlerts || {};
+      config.lastAlerts[rule.id] = now;
+    }
+  }
+  return results;
+}
+
 export async function POST() {
   try {
     const config = getAlertConfig();
@@ -436,6 +532,15 @@ export async function POST() {
 
     const cronResults = await checkCronAlerts(config);
     allResults.push(...cronResults);
+
+    const runtimeResults = await checkRuntimeUnreadable(config);
+    allResults.push(...runtimeResults);
+
+    const claudeResults = await checkClaudeProjectsBroken(config);
+    allResults.push(...claudeResults);
+
+    const codexResults = await checkCodexSqliteInaccessible(config);
+    allResults.push(...codexResults);
 
     // 保存配置（更新 lastAlerts）
     saveAlertConfig(config);
