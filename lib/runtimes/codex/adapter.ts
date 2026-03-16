@@ -11,6 +11,10 @@ import { listCodexThreads } from "./threads";
 import { listCodexLogs, latestLogTimestamp } from "./logs";
 import { checkCodexHealth } from "./health";
 import { codexActions } from "./actions";
+import { cached } from "@/lib/cache";
+
+const HEALTH_TTL = 30_000;
+const THREADS_TTL = 5_000;
 
 function threadStatus(
   updatedAt: number | undefined,
@@ -58,13 +62,13 @@ export const codexAdapter: RuntimeAdapter = {
   },
 
   async health(): Promise<RuntimeHealth> {
-    return checkCodexHealth();
+    return cached("codex:health", HEALTH_TTL, () => checkCodexHealth());
   },
 
   async listEntities(): Promise<EntitySummary[]> {
     let threads;
     try {
-      threads = await listCodexThreads();
+      threads = await cached("codex:threads", THREADS_TTL, () => listCodexThreads());
     } catch {
       return [];
     }
@@ -85,7 +89,7 @@ export const codexAdapter: RuntimeAdapter = {
   async listSessions({ entityId, limit }: import("@/lib/core/types").SessionFilter = {}): Promise<SessionSummary[]> {
     let threads;
     try {
-      threads = await listCodexThreads();
+      threads = await cached("codex:threads", THREADS_TTL, () => listCodexThreads());
     } catch {
       return [];
     }
@@ -113,7 +117,7 @@ export const codexAdapter: RuntimeAdapter = {
   async entityStats(entityId: string): Promise<EntityStats | null> {
     let threads;
     try {
-      threads = await listCodexThreads();
+      threads = await cached("codex:threads", THREADS_TTL, () => listCodexThreads());
     } catch {
       return null;
     }

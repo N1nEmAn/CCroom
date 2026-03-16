@@ -11,6 +11,10 @@ import type {
   EntityStats,
   RuntimeStatus,
 } from "@/lib/core/types";
+import { cached, cachedSync } from "@/lib/cache";
+
+const HEALTH_TTL = 30_000;
+const ENTITIES_TTL = 10_000;
 
 const home = os.homedir();
 const OPENCLAW_HOME =
@@ -84,42 +88,46 @@ export const openclawAdapter: RuntimeAdapter = {
   } satisfies CapabilitySummary,
 
   async health(): Promise<RuntimeHealth> {
-    const homeExists = fs.existsSync(OPENCLAW_HOME);
-    const configExists = fs.existsSync(path.join(OPENCLAW_HOME, "openclaw.json"));
-    if (!homeExists) {
-      return { runtime: "openclaw", status: "offline", homeFound: false, cliFound: false };
-    }
-    return {
-      runtime: "openclaw",
-      status: configExists ? "online" : "idle",
-      homeFound: true,
-      cliFound: configExists,
-    };
+    return cachedSync("openclaw:health", HEALTH_TTL, () => {
+      const homeExists = fs.existsSync(OPENCLAW_HOME);
+      const configExists = fs.existsSync(path.join(OPENCLAW_HOME, "openclaw.json"));
+      if (!homeExists) {
+        return { runtime: "openclaw" as RuntimeId, status: "offline" as const, homeFound: false, cliFound: false };
+      }
+      return {
+        runtime: "openclaw" as RuntimeId,
+        status: (configExists ? "online" : "idle") as RuntimeStatus,
+        homeFound: true,
+        cliFound: configExists,
+      };
+    });
   },
 
   async listEntities(): Promise<EntitySummary[]> {
-    const agentsDir = path.join(OPENCLAW_HOME, "agents");
-    let agentIds: string[];
-    try {
-      agentIds = fs
-        .readdirSync(agentsDir, { withFileTypes: true })
-        .filter((d) => d.isDirectory() && !d.name.startsWith("."))
-        .map((d) => d.name);
-    } catch {
-      return [];
-    }
+    return cachedSync("openclaw:entities", ENTITIES_TTL, () => {
+      const agentsDir = path.join(OPENCLAW_HOME, "agents");
+      let agentIds: string[];
+      try {
+        agentIds = fs
+          .readdirSync(agentsDir, { withFileTypes: true })
+          .filter((d) => d.isDirectory() && !d.name.startsWith("."))
+          .map((d) => d.name);
+      } catch {
+        return [];
+      }
 
-    return agentIds.map((id): EntitySummary => {
-      const { lastActiveMs, lastAssistantMs } = scanAgentActivity(id);
-      return {
-        id,
-        runtime: "openclaw",
-        label: id,
-        workspacePath: path.join(OPENCLAW_HOME, "agents", id),
-        status: agentStatus(lastActiveMs, lastAssistantMs),
-        lastActiveAt: lastActiveMs ? new Date(lastActiveMs).toISOString() : undefined,
-        meta: { type: "agent" },
-      };
+      return agentIds.map((id): EntitySummary => {
+        const { lastActiveMs, lastAssistantMs } = scanAgentActivity(id);
+        return {
+          id,
+          runtime: "openclaw",
+          label: id,
+          workspacePath: path.join(OPENCLAW_HOME, "agents", id),
+          status: agentStatus(lastActiveMs, lastAssistantMs),
+          lastActiveAt: lastActiveMs ? new Date(lastActiveMs).toISOString() : undefined,
+          meta: { type: "agent" },
+        };
+      });
     });
   },
 

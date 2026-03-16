@@ -11,6 +11,10 @@ import { listClaudeProjects } from "./projects";
 import { listSessionsForProject, listAllClaudeSessions } from "./sessions";
 import { checkClaudeHealth } from "./health";
 import { claudeActions } from "./actions";
+import { cached, cachedSync } from "@/lib/cache";
+
+const HEALTH_TTL = 30_000;
+const SESSIONS_TTL = 10_000;
 
 function projectStatus(lastActiveAt: number | undefined): RuntimeStatus {
   if (!lastActiveAt) return "offline";
@@ -33,11 +37,11 @@ export const claudeAdapter: RuntimeAdapter = {
   },
 
   async health(): Promise<RuntimeHealth> {
-    return checkClaudeHealth();
+    return cached("claude:health", HEALTH_TTL, () => checkClaudeHealth());
   },
 
   async listEntities(): Promise<EntitySummary[]> {
-    const projects = listClaudeProjects();
+    const projects = cachedSync("claude:projects", SESSIONS_TTL, () => listClaudeProjects());
     return projects.map((p) => ({
       id: p.slug,
       runtime: "claude",
@@ -52,9 +56,10 @@ export const claudeAdapter: RuntimeAdapter = {
   },
 
   async listSessions({ entityId, limit }: import("@/lib/core/types").SessionFilter = {}): Promise<SessionSummary[]> {
-    const sessions = entityId
-      ? listSessionsForProject(entityId)
-      : listAllClaudeSessions();
+    const cacheKey = entityId ? `claude:sessions:${entityId}` : "claude:sessions:all";
+    const sessions = cachedSync(cacheKey, SESSIONS_TTL, () =>
+      entityId ? listSessionsForProject(entityId) : listAllClaudeSessions()
+    );
 
     const mapped = sessions.map((s) => ({
       id: s.sessionId,
@@ -76,7 +81,7 @@ export const claudeAdapter: RuntimeAdapter = {
   },
 
   async entityStats(entityId: string): Promise<EntityStats | null> {
-    const projects = listClaudeProjects();
+    const projects = cachedSync("claude:projects", SESSIONS_TTL, () => listClaudeProjects());
     const project = projects.find((p) => p.slug === entityId);
     if (!project) return null;
     return {
