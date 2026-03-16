@@ -11,24 +11,40 @@ npm install
 npm run dev
 ```
 
-### 2. 当前运行前提
+### 2. 环境变量
 
-当前代码实现仍然主要面向 OpenClaw，所以你需要：
+支持以下环境变量（可组合使用）：
 
-- 已安装 OpenClaw
-- 默认配置位于 `~/.openclaw/openclaw.json`
+| 变量名 | 说明 |
+|---|---|
+| `CCROOM_OPENCLAW_HOME` | 指定 OpenClaw 根目录（优先级高于 `OPENCLAW_HOME`） |
+| `OPENCLAW_HOME` | 兼容旧变量，指定 OpenClaw 根目录 |
+| `CCROOM_CLAUDE_HOME` | 指定 Claude Code 数据目录（默认 `~/.claude`） |
+| `CCROOM_CODEX_HOME` | 指定 Codex 数据目录（默认 `~/.codex`） |
+| `CCROOM_RUNTIME_ROOTS` | 逗号分隔，批量指定多个 runtime 根目录 |
 
-如果 OpenClaw 不在默认目录，可以这样启动：
+示例：
 
 ```bash
-OPENCLAW_HOME=/opt/openclaw npm run dev
+# 指定 OpenClaw 目录
+CCROOM_OPENCLAW_HOME=/opt/openclaw npm run dev
+
+# 同时指定多个 runtime
+CCROOM_OPENCLAW_HOME=/opt/openclaw CCROOM_CLAUDE_HOME=/home/user/.claude npm run dev
 ```
 
-### 3. 说明
+### 3. 当前运行前提
 
-- 仓库名已改为 `CCroom`
-- 上游来自 `xmanrui/OpenClaw-bot-review`
-- Claude Code 多 session / Codex 支持目前还在规划阶段，详见 `PLAN.md`
+- OpenClaw 支持：需已安装 OpenClaw，默认配置位于 `~/.openclaw/openclaw.json`
+- Claude Code 支持：需已安装 Claude CLI，数据目录默认位于 `~/.claude`
+- Codex 支持：需已安装 Codex，数据目录默认位于 `~/.codex`
+
+### 4. 说明
+
+- 仓库名：`CCroom`
+- 上游来自：`xmanrui/OpenClaw-bot-review`
+- 版权与来源说明见 `NOTICE.md`、`PROVENANCE.md`、`COPYRIGHT.md`
+- 多 runtime 支持详见 `PLAN.md`
 
 ---
 
@@ -43,21 +59,37 @@ npm install
 npm run dev
 ```
 
-### 2. Current Runtime Requirement
+### 2. Environment Variables
 
-The current implementation is still primarily OpenClaw-based, so you need:
+The following environment variables are supported (combinable):
 
-- OpenClaw installed
-- Config available at `~/.openclaw/openclaw.json`
+| Variable | Description |
+|---|---|
+| `CCROOM_OPENCLAW_HOME` | OpenClaw root directory (takes priority over `OPENCLAW_HOME`) |
+| `OPENCLAW_HOME` | Legacy alias for OpenClaw root directory |
+| `CCROOM_CLAUDE_HOME` | Claude Code data directory (default: `~/.claude`) |
+| `CCROOM_CODEX_HOME` | Codex data directory (default: `~/.codex`) |
+| `CCROOM_RUNTIME_ROOTS` | Comma-separated list of runtime root directories |
 
-If OpenClaw is stored elsewhere:
+Example:
 
 ```bash
-OPENCLAW_HOME=/opt/openclaw npm run dev
+# Specify OpenClaw directory
+CCROOM_OPENCLAW_HOME=/opt/openclaw npm run dev
+
+# Specify multiple runtimes
+CCROOM_OPENCLAW_HOME=/opt/openclaw CCROOM_CLAUDE_HOME=/home/user/.claude npm run dev
 ```
 
-### 3. Notes
+### 3. Runtime Requirements
 
-- The repository name is now `CCroom`
-- Upstream source is `xmanrui/OpenClaw-bot-review`
-- Claude Code multi-session and Codex support are planned, not implemented yet; see `PLAN.md`
+- OpenClaw: requires OpenClaw installed; default config at `~/.openclaw/openclaw.json`
+- Claude Code: requires Claude CLI installed; default data dir at `~/.claude`
+- Codex: requires Codex installed; default data dir at `~/.codex`
+
+### 4. Notes
+
+- Repository name: `CCroom`
+- Upstream source: `xmanrui/OpenClaw-bot-review`
+- See `NOTICE.md`, `PROVENANCE.md`, `COPYRIGHT.md` for copyright and attribution details
+- Multi-runtime support details: see `PLAN.md`

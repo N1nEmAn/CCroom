@@ -46,8 +46,8 @@ export function GatewayStatus({ compact = false, className = "", hideIconOnMobil
   }, [check]);
 
   const gatewayTitle = health?.openclawVersion
-    ? `OpenClaw ${health.openclawVersion}`
-    : "OpenClaw";
+    ? `CCroom Gateway (OpenClaw ${health.openclawVersion})`
+    : "CCroom Gateway";
 
   return (
     <div className={`relative inline-flex items-center gap-1.5 ${className}`.trim()}>

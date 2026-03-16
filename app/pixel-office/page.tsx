@@ -496,9 +496,9 @@ export default function PixelOfficePage() {
   }, [agents])
 
   useEffect(() => {
-    window.dispatchEvent(new CustomEvent('openclaw-logo-drag-start'))
+    window.dispatchEvent(new CustomEvent('ccroom-logo-drag-start'))
     return () => {
-      window.dispatchEvent(new CustomEvent('openclaw-logo-drag-stop'))
+      window.dispatchEvent(new CustomEvent('ccroom-logo-drag-stop'))
     }
   }, [])
 

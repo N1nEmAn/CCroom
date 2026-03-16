@@ -267,13 +267,13 @@ export function Sidebar() {
       if (!d) return;
       setLogoCarry({ active: !!d.active, dx: d.dx || 0, dy: d.dy || 0, angle: d.angle || 0, hidden: !!d.hidden });
     };
-    window.addEventListener("openclaw-logo-drag-start", onStart as EventListener);
-    window.addEventListener("openclaw-logo-drag-stop", onStop as EventListener);
-    window.addEventListener("openclaw-logo-carry-progress", onProgress as EventListener);
+    window.addEventListener("ccroom-logo-drag-start", onStart as EventListener);
+    window.addEventListener("ccroom-logo-drag-stop", onStop as EventListener);
+    window.addEventListener("ccroom-logo-carry-progress", onProgress as EventListener);
     return () => {
-      window.removeEventListener("openclaw-logo-drag-start", onStart as EventListener);
-      window.removeEventListener("openclaw-logo-drag-stop", onStop as EventListener);
-      window.removeEventListener("openclaw-logo-carry-progress", onProgress as EventListener);
+      window.removeEventListener("ccroom-logo-drag-start", onStart as EventListener);
+      window.removeEventListener("ccroom-logo-drag-stop", onStop as EventListener);
+      window.removeEventListener("ccroom-logo-carry-progress", onProgress as EventListener);
     };
   }, []);
 
@@ -288,10 +288,10 @@ export function Sidebar() {
     };
     syncFromStorage();
     window.addEventListener("storage", syncFromStorage);
-    window.addEventListener("openclaw-bugs-config-change", syncFromStorage as EventListener);
+    window.addEventListener("ccroom-bugs-config-change", syncFromStorage as EventListener);
     return () => {
       window.removeEventListener("storage", syncFromStorage);
-      window.removeEventListener("openclaw-bugs-config-change", syncFromStorage as EventListener);
+      window.removeEventListener("ccroom-bugs-config-change", syncFromStorage as EventListener);
     };
   }, []);
 
@@ -299,14 +299,14 @@ export function Sidebar() {
     const next = !bugsEnabled;
     setBugsEnabled(next);
     localStorage.setItem(BUGS_ENABLED_KEY, String(next));
-    window.dispatchEvent(new CustomEvent("openclaw-bugs-config-change"));
+    window.dispatchEvent(new CustomEvent("ccroom-bugs-config-change"));
   };
 
   const onBugCountChange = (nextCount: number) => {
     const clamped = Math.max(0, Math.min(BUGS_MAX, nextCount));
     setBugsCount(clamped);
     localStorage.setItem(BUGS_COUNT_KEY, String(clamped));
-    window.dispatchEvent(new CustomEvent("openclaw-bugs-config-change"));
+    window.dispatchEvent(new CustomEvent("ccroom-bugs-config-change"));
   };
 
   useEffect(() => {
@@ -461,7 +461,7 @@ export function Sidebar() {
             >
               <span
                 className="relative inline-block leading-none transition-opacity duration-300"
-                data-openclaw-logo-anchor="true"
+                data-ccroom-logo-anchor="true"
                 onDragStart={handleLogoNativeDragStart}
                 draggable={false}
                 style={{
