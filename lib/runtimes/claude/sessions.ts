@@ -1,5 +1,5 @@
 import path from "path";
-import { CLAUDE_PROJECTS_DIR, jsonlFilesInDir } from "./paths";
+import { CLAUDE_PROJECTS_DIR, jsonlFilesInDir, claudeProjectDirs } from "./paths";
 import { parseJsonlFile } from "./parser";
 import type { ParsedClaudeSession } from "./parser";
 
@@ -24,7 +24,6 @@ export function listSessionsForProject(projectSlug: string): ClaudeSessionInfo[]
 }
 
 export function listAllClaudeSessions(): ClaudeSessionInfo[] {
-  const { claudeProjectDirs } = require("./paths");
   const dirs: string[] = claudeProjectDirs();
   const results: ClaudeSessionInfo[] = [];
   for (const dir of dirs) {

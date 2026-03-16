@@ -41,7 +41,7 @@ export const claudeAdapter: RuntimeAdapter = {
     return projects.map((p) => ({
       id: p.slug,
       runtime: "claude",
-      displayName: p.firstPrompt ? p.firstPrompt.slice(0, 60) : p.slug,
+      label: p.firstPrompt ? p.firstPrompt.slice(0, 60) : p.slug,
       workspacePath: p.workspacePath,
       status: projectStatus(p.lastActiveAt),
       lastActiveAt: p.lastActiveAt ? new Date(p.lastActiveAt).toISOString() : undefined,
@@ -51,18 +51,19 @@ export const claudeAdapter: RuntimeAdapter = {
     }));
   },
 
-  async listSessions(entityId: string | null): Promise<SessionSummary[]> {
+  async listSessions({ entityId, limit }: import("@/lib/core/types").SessionFilter = {}): Promise<SessionSummary[]> {
     const sessions = entityId
       ? listSessionsForProject(entityId)
       : listAllClaudeSessions();
 
-    return sessions.map((s) => ({
+    const mapped = sessions.map((s) => ({
       id: s.sessionId,
       entityId: s.projectSlug,
       runtime: "claude",
       type: "project-session",
-      label: s.firstUserMessage ? s.firstUserMessage.slice(0, 80) : s.sessionId,
+      title: s.firstUserMessage ? s.firstUserMessage.slice(0, 80) : s.sessionId,
       lastActiveAt: s.lastActiveAt ? new Date(s.lastActiveAt).toISOString() : undefined,
+      lastActiveMs: s.lastActiveAt,
       usage: {
         messageCount: s.messageCount,
         inputTokens: s.totalInputTokens,
@@ -70,6 +71,8 @@ export const claudeAdapter: RuntimeAdapter = {
         totalTokens: s.totalInputTokens + s.totalOutputTokens,
       },
     }));
+    mapped.sort((a, b) => (b.lastActiveMs ?? 0) - (a.lastActiveMs ?? 0));
+    return limit ? mapped.slice(0, limit) : mapped;
   },
 
   async entityStats(entityId: string): Promise<EntityStats | null> {

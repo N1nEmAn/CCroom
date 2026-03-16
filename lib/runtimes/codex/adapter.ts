@@ -72,7 +72,7 @@ export const codexAdapter: RuntimeAdapter = {
     return groups.map((g) => ({
       id: encodeURIComponent(g.cwd),
       runtime: "codex",
-      displayName: g.cwd,
+      label: g.cwd,
       workspacePath: g.cwd,
       status: threadStatus(g.lastUpdated || undefined, false),
       lastActiveAt: g.lastUpdated ? new Date(g.lastUpdated).toISOString() : undefined,
@@ -82,7 +82,7 @@ export const codexAdapter: RuntimeAdapter = {
     }));
   },
 
-  async listSessions(entityId: string | null): Promise<SessionSummary[]> {
+  async listSessions({ entityId, limit }: import("@/lib/core/types").SessionFilter = {}): Promise<SessionSummary[]> {
     let threads;
     try {
       threads = await listCodexThreads();
@@ -94,17 +94,20 @@ export const codexAdapter: RuntimeAdapter = {
       ? threads.filter((t) => encodeURIComponent(t.cwd || "(unknown)") === entityId)
       : threads;
 
-    return filtered.map((t) => ({
+    const mapped = filtered.map((t) => ({
       id: t.id,
       entityId: encodeURIComponent(t.cwd || "(unknown)"),
       runtime: "codex",
       type: "thread",
-      label: t.title || t.id,
+      title: t.title || t.id,
       lastActiveAt: t.updatedAt ? new Date(t.updatedAt).toISOString() : undefined,
+      lastActiveMs: t.updatedAt,
       usage: {
         messageCount: t.messageCount,
       },
     }));
+    mapped.sort((a, b) => (b.lastActiveMs ?? 0) - (a.lastActiveMs ?? 0));
+    return limit ? mapped.slice(0, limit) : mapped;
   },
 
   async entityStats(entityId: string): Promise<EntityStats | null> {

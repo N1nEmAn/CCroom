@@ -96,6 +96,11 @@ export interface EntitySummary {
   meta?: Record<string, unknown>;
 }
 
+export interface SessionFilter {
+  entityId?: string;
+  limit?: number;
+}
+
 export interface SessionSummary {
   id: string;
   runtime: RuntimeId;
@@ -104,6 +109,8 @@ export interface SessionSummary {
   title?: string;
   startedAt?: string;
   lastActiveAt?: string;
+  /** Numeric epoch ms for sort performance */
+  lastActiveMs?: number;
   status?: RuntimeStatus;
   usage?: UsageSummary;
   model?: ModelSummary;

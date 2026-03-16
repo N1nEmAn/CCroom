@@ -123,7 +123,7 @@ export const openclawAdapter: RuntimeAdapter = {
     });
   },
 
-  async listSessions(entityId: string | null): Promise<SessionSummary[]> {
+  async listSessions({ entityId, limit }: import("@/lib/core/types").SessionFilter = {}): Promise<SessionSummary[]> {
     const agentIds = entityId
       ? [entityId]
       : (() => {
@@ -152,12 +152,14 @@ export const openclawAdapter: RuntimeAdapter = {
             type: "interactive",
             title: v.title || sid,
             lastActiveAt: v.updatedAt ? new Date(v.updatedAt).toISOString() : undefined,
+            lastActiveMs: v.updatedAt ? Number(v.updatedAt) : undefined,
             usage: { messageCount: v.messageCount },
           });
         }
       } catch {}
     }
-    return results;
+    results.sort((a, b) => (b.lastActiveMs ?? 0) - (a.lastActiveMs ?? 0));
+    return limit ? results.slice(0, limit) : results;
   },
 
   async entityStats(entityId: string): Promise<EntityStats | null> {

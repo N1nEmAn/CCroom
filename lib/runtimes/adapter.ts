@@ -5,6 +5,7 @@ import type {
   CapabilitySummary,
   EntitySummary,
   SessionSummary,
+  SessionFilter,
   EntityStats,
 } from "@/lib/core/types";
 
@@ -18,8 +19,8 @@ export interface RuntimeAdapter {
   /** List top-level entities (agents, projects, workspaces). */
   listEntities(): Promise<EntitySummary[]>;
 
-  /** List sessions for a given entity. Pass null to list all sessions. */
-  listSessions(entityId: string | null): Promise<SessionSummary[]>;
+  /** List sessions, optionally filtered. */
+  listSessions(filter: SessionFilter): Promise<SessionSummary[]>;
 
   /** Aggregate stats for a given entity. */
   entityStats(entityId: string): Promise<EntityStats | null>;
