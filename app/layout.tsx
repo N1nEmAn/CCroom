@@ -6,8 +6,8 @@ import { AlertMonitor } from "./alert-monitor";
 import { GlobalBugsOverlay } from "./global-bugs-overlay";
 
 export const metadata: Metadata = {
-  title: "OpenClaw Bot Dashboard",
-  description: "查看所有 OpenClaw 机器人配置",
+  title: "CCroom",
+  description: "统一查看本机 AI 运行时与会话状态",
 };
 
 export const viewport: Viewport = {

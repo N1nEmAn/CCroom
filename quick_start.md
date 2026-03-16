@@ -1,70 +1,63 @@
-#快速启动办法（中文）
-## 1.通过prompt安装
-```
-在openclaw输入如下提示词，让openclaw帮启动：
-请帮我安装并运行这个github项目，并把服务访问地址发给我：https://github.com/xmanrui/OpenClaw-bot-review
-```
+# Quick Start
 
-## 2.通过git安装
-```
-git clone https://github.com/xmanrui/OpenClaw-bot-review.git
-cd OpenClaw-bot-review
+## 中文
+
+### 1. 通过 Git 安装
+
+```bash
+git clone https://github.com/N1nEmAn/CCroom.git
+cd CCroom
 npm install
 npm run dev
 ```
 
-## 3.通过skill安装
-```
-npx clawhub install openclaw-bot-dashboard
-或者：npx skills add xmanrui/openclaw-bot-dashboard
+### 2. 当前运行前提
 
-安装后通过这些关键词触发启动服务：
-- "打开 OpenClaw-bot-review"
-- "打开 Openclaw dashboard"
-- "打开 bot review"
-- "打开机器人大盘"
-- "打开 bot-review"
-- "打开openclaw机器人大盘"
-- "open openclaw dashboard"
-- "open OpenClaw-bot-review"
-- "open openclaw dashsboard"
-- "launch bot review"
-- "start dashboard"
+当前代码实现仍然主要面向 OpenClaw，所以你需要：
 
+- 已安装 OpenClaw
+- 默认配置位于 `~/.openclaw/openclaw.json`
+
+如果 OpenClaw 不在默认目录，可以这样启动：
+
+```bash
+OPENCLAW_HOME=/opt/openclaw npm run dev
 ```
+
+### 3. 说明
+
+- 仓库名已改为 `CCroom`
+- 上游来自 `xmanrui/OpenClaw-bot-review`
+- Claude Code 多 session / Codex 支持目前还在规划阶段，详见 `PLAN.md`
 
 ---
 
-# Quick Start (English)
-## 1. Install via Prompt
-```
-In OpenClaw, send the prompt below and let OpenClaw set it up:
-Please help me install and run this GitHub project, and send me the service URL: https://github.com/xmanrui/OpenClaw-bot-review
-```
+## English
 
-## 2. Install via Git
-```
-git clone https://github.com/xmanrui/OpenClaw-bot-review.git
-cd OpenClaw-bot-review
+### 1. Install via Git
+
+```bash
+git clone https://github.com/N1nEmAn/CCroom.git
+cd CCroom
 npm install
 npm run dev
 ```
 
-## 3. Install via Skill
-```
-npx clawhub install openclaw-bot-dashboard
-or: npx skills add xmanrui/openclaw-bot-dashboard
+### 2. Current Runtime Requirement
 
-After installation, use these trigger phrases to start the service:
-- "打开 OpenClaw-bot-review"
-- "打开 Openclaw dashboard"
-- "打开 bot review"
-- "打开机器人大盘"
-- "打开 bot-review"
-- "打开openclaw机器人大盘"
-- "open openclaw dashboard"
-- "open OpenClaw-bot-review"
-- "open openclaw dashsboard"
-- "launch bot review"
-- "start dashboard"
+The current implementation is still primarily OpenClaw-based, so you need:
+
+- OpenClaw installed
+- Config available at `~/.openclaw/openclaw.json`
+
+If OpenClaw is stored elsewhere:
+
+```bash
+OPENCLAW_HOME=/opt/openclaw npm run dev
 ```
+
+### 3. Notes
+
+- The repository name is now `CCroom`
+- Upstream source is `xmanrui/OpenClaw-bot-review`
+- Claude Code multi-session and Codex support are planned, not implemented yet; see `PLAN.md`

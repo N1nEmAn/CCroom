@@ -7,8 +7,8 @@ export type Locale = "zh-TW" | "zh" | "en";
 const translations: Record<Locale, Record<string, string>> = {
   "zh-TW": {
     // layout
-    "site.title": "OpenClaw Bot Dashboard",
-    "site.desc": "查看所有 OpenClaw 機器人設定",
+    "site.title": "CCroom",
+    "site.desc": "統一查看本機 AI 執行環境與會話狀態",
 
     // nav sidebar
     "nav.overview": "總覽",
@@ -60,9 +60,9 @@ const translations: Record<Locale, Record<string, string>> = {
     "common.minutes": "分鐘",
 
     // home page
-    "home.title": "🐾 OpenClaw Bot Dashboard",
+    "home.title": "🐾 CCroom",
     "home.agentCount": "個機器人",
-    "home.pageTitle": "OpenClaw 機器人",
+    "home.pageTitle": "CCroom",
     "home.defaultModel": "預設模型",
     "home.viewModels": "查看模型列表 →",
     "home.skillMgmt": "🧩 技能管理",
@@ -155,7 +155,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "refresh.10m": "10 分鐘",
 
     // models page
-    "models.title": "OpenClaw 接入模型列表",
+    "models.title": "CCroom 模型列表",
     "models.providerCount": "個 Provider",
     "models.totalPrefix": "共",
     "models.testAll": "🧪 測試全部模型",
@@ -249,7 +249,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "gateway.fetchError": "無法檢查 Gateway 狀態",
 
     // pixel office
-    "pixelOffice.title": "OpenClaw Agents 辦公室",
+    "pixelOffice.title": "CCroom 辦公室",
     "pixelOffice.editMode": "編輯版面",
     "pixelOffice.exitEdit": "退出編輯",
     "pixelOffice.save": "儲存",
@@ -293,8 +293,8 @@ const translations: Record<Locale, Record<string, string>> = {
   },
   zh: {
     // layout
-    "site.title": "OpenClaw Bot Dashboard",
-    "site.desc": "查看所有 OpenClaw 机器人配置",
+    "site.title": "CCroom",
+    "site.desc": "统一查看本机 AI 运行时与会话状态",
 
     // nav sidebar
     "nav.overview": "总览",
@@ -346,9 +346,9 @@ const translations: Record<Locale, Record<string, string>> = {
     "common.minutes": "分钟",
 
     // home page
-    "home.title": "🐾 OpenClaw Bot Dashboard",
+    "home.title": "🐾 CCroom",
     "home.agentCount": "个机器人",
-    "home.pageTitle": "OpenClaw 机器人",
+    "home.pageTitle": "CCroom",
     "home.defaultModel": "默认模型",
     "home.viewModels": "查看模型列表 →",
     "home.skillMgmt": "🧩 技能管理",
@@ -441,7 +441,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "refresh.10m": "10 分钟",
 
     // models page
-    "models.title": "OpenClaw接入模型列表",
+    "models.title": "CCroom 模型列表",
     "models.providerCount": "个 Provider",
     "models.totalPrefix": "共",
     "models.testAll": "🧪 测试全部模型",
@@ -535,7 +535,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "gateway.fetchError": "无法检查 Gateway 状态",
 
     // pixel office
-    "pixelOffice.title": "OpenClaw Agents办公室",
+    "pixelOffice.title": "CCroom 办公室",
     "pixelOffice.editMode": "编辑布局",
     "pixelOffice.exitEdit": "退出编辑",
     "pixelOffice.save": "保存",
@@ -579,8 +579,8 @@ const translations: Record<Locale, Record<string, string>> = {
   },
   en: {
     // layout
-    "site.title": "OpenClaw Bot Dashboard",
-    "site.desc": "View all OpenClaw bot configurations",
+    "site.title": "CCroom",
+    "site.desc": "Unified local AI runtime and session dashboard",
 
     // nav sidebar
     "nav.overview": "Overview",
@@ -632,9 +632,9 @@ const translations: Record<Locale, Record<string, string>> = {
     "common.minutes": "minutes",
 
     // home page
-    "home.title": "🐾 OpenClaw Bot Dashboard",
+    "home.title": "🐾 CCroom",
     "home.agentCount": "bots",
-    "home.pageTitle": "OpenClaw Bots",
+    "home.pageTitle": "CCroom",
     "home.defaultModel": "Default model",
     "home.viewModels": "View Models →",
     "home.skillMgmt": "🧩 Skills",
@@ -727,7 +727,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "refresh.10m": "10 min",
 
     // models page
-    "models.title": "OpenClaw Model List",
+    "models.title": "CCroom Models",
     "models.providerCount": "Providers",
     "models.totalPrefix": "",
     "models.testAll": "🧪 Test All Models",
@@ -821,7 +821,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "gateway.fetchError": "Cannot check Gateway status",
 
     // pixel office
-    "pixelOffice.title": "OpenClaw Agents Office",
+    "pixelOffice.title": "CCroom Office",
     "pixelOffice.editMode": "Edit Layout",
     "pixelOffice.exitEdit": "Exit Edit",
     "pixelOffice.save": "Save",
