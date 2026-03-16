@@ -1,72 +1,48 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
-import { OPENCLAW_HOME } from "@/lib/openclaw-paths";
+import { bootstrapAdapters } from "@/lib/runtimes/bootstrap";
+import { getAllAdapters } from "@/lib/runtimes/registry";
 
-// Server-side cache: 5 min TTL
-let cache: { data: any; ts: number } | null = null;
-const CACHE_TTL = 5 * 60 * 1000;
-
-function buildHeatmapData() {
-  const agentsDir = path.join(OPENCLAW_HOME, "agents");
-  let agentIds: string[];
-  try {
-    agentIds = fs.readdirSync(agentsDir).filter(f =>
-      fs.statSync(path.join(agentsDir, f)).isDirectory()
-    );
-  } catch {
-    agentIds = [];
-  }
-
-  const result: { agentId: string; grid: number[][] }[] = [];
-
-  for (const agentId of agentIds) {
-    const grid: number[][] = Array.from({ length: 7 }, () => new Array(24).fill(0));
-    const sessionsDir = path.join(agentsDir, agentId, "sessions");
-    let files: string[];
-    try {
-      files = fs.readdirSync(sessionsDir).filter(f => f.endsWith(".jsonl") && !f.includes(".deleted."));
-    } catch { continue; }
-
-    for (const file of files) {
-      let content: string;
-      try { content = fs.readFileSync(path.join(sessionsDir, file), "utf-8"); } catch { continue; }
-
-      for (const line of content.trim().split("\n")) {
-        let entry: any;
-        try { entry = JSON.parse(line); } catch { continue; }
-        if (entry.type !== "message" || !entry.message || !entry.timestamp) continue;
-        if (entry.message.role !== "assistant") continue;
-
-        const dt = new Date(entry.timestamp);
-        const shanghai = new Date(dt.toLocaleString("en-US", { timeZone: "Asia/Shanghai" }));
-        const hour = shanghai.getHours();
-        const jsDay = shanghai.getDay(); // 0=Sun
-        const dayOfWeek = jsDay === 0 ? 6 : jsDay - 1; // 0=Mon … 6=Sun
-        grid[dayOfWeek][hour]++;
-      }
-    }
-
-    result.push({ agentId, grid });
-  }
-
-  return { agents: result };
-}
+export const dynamic = "force-dynamic";
 
 /**
- * Per-agent message activity grids: 7×24 (dayOfWeek × hour).
- * dayOfWeek: 0=Monday … 6=Sunday, hour: 0-23 in Asia/Shanghai timezone.
- * Cached for 5 minutes server-side.
+ * GET /api/activity-heatmap
+ * Returns per-day message/token counts across all runtimes for heatmap rendering.
+ * Query params:
+ *   - days: number of days to look back (default 90)
+ *   - runtime: filter to a single runtime
  */
-export async function GET() {
-  try {
-    if (cache && Date.now() - cache.ts < CACHE_TTL) {
-      return NextResponse.json(cache.data);
-    }
-    const data = buildHeatmapData();
-    cache = { data, ts: Date.now() };
-    return NextResponse.json(data);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
-  }
+export async function GET(req: Request) {
+  bootstrapAdapters();
+  const { searchParams } = new URL(req.url);
+  const days = Math.min(365, Math.max(1, parseInt(searchParams.get("days") ?? "90", 10)));
+  const runtimeFilter = searchParams.get("runtime") ?? undefined;
+
+  const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+  const adapters = getAllAdapters().filter(
+    (a) => !runtimeFilter || a.id === runtimeFilter
+  );
+
+  // date -> { messageCount, totalTokens }
+  const dayMap: Record<string, { date: string; messageCount: number; totalTokens: number }> = {};
+
+  await Promise.allSettled(
+    adapters.map(async (adapter) => {
+      try {
+        const sessions = await adapter.listSessions({});
+        for (const s of sessions) {
+          const lastActive = s.lastActiveAt ? new Date(s.lastActiveAt).getTime() : 0;
+          if (lastActive < cutoff) continue;
+          const date = new Date(lastActive).toISOString().slice(0, 10);
+          if (!dayMap[date]) dayMap[date] = { date, messageCount: 0, totalTokens: 0 };
+          dayMap[date].messageCount += s.usage?.messageCount ?? 0;
+          dayMap[date].totalTokens += s.usage?.totalTokens ?? 0;
+        }
+      } catch {
+        // skip failed adapter
+      }
+    })
+  );
+
+  const heatmap = Object.values(dayMap).sort((a, b) => a.date.localeCompare(b.date));
+  return NextResponse.json({ heatmap, days, generatedAt: Date.now() });
 }
