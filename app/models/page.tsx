@@ -146,11 +146,19 @@ export default function ModelsPage() {
   useEffect(() => {
     fetch("/api/models")
       .then((r) => r.json())
-      .then((data: Array<{ runtime: string; models: RuntimeModelEntry[] }>) => {
+      .then((data: Record<string, RuntimeModelEntry[]> | Array<{ runtime: string; models: RuntimeModelEntry[] }>) => {
         const entries: RuntimeModelEntry[] = [];
-        for (const r of data) {
-          if (r.runtime !== "openclaw") {
-            entries.push(...(r.models || []));
+        if (Array.isArray(data)) {
+          for (const r of data) {
+            if (r.runtime !== "openclaw") {
+              entries.push(...(r.models || []));
+            }
+          }
+        } else {
+          for (const [runtime, models] of Object.entries(data)) {
+            if (runtime !== "openclaw") {
+              entries.push(...(models || []));
+            }
           }
         }
         setRuntimeModels(entries);
