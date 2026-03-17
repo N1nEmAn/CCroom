@@ -30,32 +30,33 @@ export function parseJsonlFile(filePath: string): ParsedClaudeSession {
     for (const line of lines) {
       try {
         const entry = JSON.parse(line);
-        // Claude Code JSONL format: each line is a conversation turn
-        const role = entry.role as "user" | "assistant" | "system";
+        // Claude Code JSONL format: role is in entry.message.role or entry.role
+        const role = (entry.message?.role || entry.role) as "user" | "assistant" | "system";
         if (!role) continue;
 
         let content = "";
-        if (typeof entry.content === "string") {
-          content = entry.content;
-        } else if (Array.isArray(entry.content)) {
-          content = entry.content
+        const rawContent = entry.message?.content ?? entry.content;
+        if (typeof rawContent === "string") {
+          content = rawContent;
+        } else if (Array.isArray(rawContent)) {
+          content = rawContent
             .map((c: any) => (typeof c === "string" ? c : c?.text || ""))
             .join("");
         }
 
         const ts: number | undefined =
-          entry.timestamp ||
+          (entry.timestamp ? new Date(entry.timestamp).getTime() : undefined) ||
           (entry.message?.created_at
             ? new Date(entry.message.created_at).getTime()
             : undefined);
 
         const inputTok: number =
-          entry.usage?.input_tokens ||
           entry.message?.usage?.input_tokens ||
+          entry.usage?.input_tokens ||
           0;
         const outputTok: number =
-          entry.usage?.output_tokens ||
           entry.message?.usage?.output_tokens ||
+          entry.usage?.output_tokens ||
           0;
 
         totalInputTokens += inputTok;
