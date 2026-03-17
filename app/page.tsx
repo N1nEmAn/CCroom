@@ -84,7 +84,21 @@ export default function HomePage() {
   useEffect(() => {
     fetch("/api/dashboard")
       .then((r) => r.json())
-      .then(setDashboard)
+      .then((data) => {
+        setDashboard({
+          runtimeCount: data.summary?.runtimeCount ?? 0,
+          entityCount: data.summary?.entityCount ?? 0,
+          sessionCount: data.summary?.sessionCount ?? 0,
+          activeSessionCount: data.summary?.activeSessionCount ?? 0,
+          recentSessionCount: data.summary?.recentMessageCount ?? 0,
+          runtimes: (data.runtimes ?? []).map((rt: {runtime: string; status?: string; [key: string]: unknown}) => ({
+            id: rt.runtime,
+            capabilities: { runtime: rt.runtime },
+            health: rt,
+          })),
+          recentSessions: data.recentSessions ?? [],
+        });
+      })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
@@ -137,16 +151,16 @@ export default function HomePage() {
           <div key={rt.id} className="p-5 rounded-xl border border-[var(--border)] bg-[var(--card)]">
             <div className="flex items-center justify-between mb-3">
               <span className="font-semibold">{RUNTIME_LABELS[rt.id] ?? rt.id}</span>
-              <span className={`text-xs flex items-center ${STATUS_COLOR[rt.health.status] ?? STATUS_COLOR.offline}`}>
-                <StatusDot status={rt.health.status} />
-                {rt.health.status}
+              <span className={`text-xs flex items-center ${STATUS_COLOR[rt.health?.status ?? "offline"] ?? STATUS_COLOR.offline}`}>
+                <StatusDot status={rt.health?.status ?? "offline"} />
+                {rt.health?.status ?? "offline"}
               </span>
             </div>
-            {rt.health.version && (
-              <div className="text-xs text-[var(--text-muted)] mb-2">v{rt.health.version}</div>
+            {rt.health?.version && (
+              <div className="text-xs text-[var(--text-muted)] mb-2">v{rt.health?.version}</div>
             )}
-            {rt.health.error && (
-              <div className="text-xs text-red-400 mb-2 truncate" title={rt.health.error}>{rt.health.error}</div>
+            {rt.health?.error && (
+              <div className="text-xs text-red-400 mb-2 truncate" title={rt.health?.error}>{rt.health?.error}</div>
             )}
             <div className="flex flex-wrap gap-1 mt-2">
               {Object.entries(rt.capabilities)
