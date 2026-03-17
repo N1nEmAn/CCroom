@@ -475,12 +475,12 @@ export function Sidebar() {
               </span>
               <div className="min-w-0">
                 <div className="text-xs font-bold tracking-wide truncate">
-                  OPENCLAW{mobileOpenclawVersion ? ` ${mobileOpenclawVersion}` : ""}
+                  CCroom
                 </div>
                 <div className="text-[10px] text-[var(--text-muted)] truncate">
                   {pathname === "/" && mobileAgentCount !== null
                     ? `${mobileAgentCount} ${t("home.agentCount")}`
-                    : mobileCurrent ? t(mobileCurrent.labelKey) : "BOT DASHBOARD"}
+                    : mobileCurrent ? t(mobileCurrent.labelKey) : "Multi-Runtime Dashboard"}
                 </div>
               </div>
             </Link>
@@ -652,8 +652,8 @@ export function Sidebar() {
                     🦞
                   </span>
                   <div>
-                    <div className="text-sm font-bold text-[var(--text)] tracking-wide">OPENCLAW</div>
-                    <div className="text-[10px] text-[var(--text-muted)] tracking-wider">BOT DASHBOARD</div>
+                    <div className="text-sm font-bold text-[var(--text)] tracking-wide">CCroom</div>
+                    <div className="text-[10px] text-[var(--text-muted)] tracking-wider">Multi-Runtime Dashboard</div>
                   </div>
                 </Link>
                 <button
